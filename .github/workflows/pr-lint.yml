@@ -1,0 +1,12 @@
+name: "Lint PR Title"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+
+jobs:
+  pr-lint:
+    uses: IYCLLC/ms-infra-github/.github/workflows/reusable-pr-lint.yml@main

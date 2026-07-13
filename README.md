@@ -75,3 +75,15 @@ npx shadcn@latest add button input
 (org UI) · `src/pages/{web,app1,app2}` (portal screens) ·
 `src/hooks/useRealtimeSync.ts` (event bus) · `supabase/migrations`
 (`profiles` + `organizations` + `organization_members`).
+
+## Contributing
+
+> This repository was provisioned by Terraform. Default files (`.github/`, PR
+> lint) are managed via [ms-infra-github](https://github.com/IYCLLC/ms-infra-github).
+
+- PR titles must follow [Conventional Commits](https://www.conventionalcommits.org/) and include a Jira ticket:
+  ```
+  type: description [TICKET-ID]
+  ```
+- Allowed types: `feat`, `fix`, `chore`, `docs`, `style`, `refactor`, `perf`, `test`
+- `[NO-TICKET]` is only permitted for `docs` and `chore` types.

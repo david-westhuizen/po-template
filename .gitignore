@@ -23,3 +23,17 @@ npm-debug.log*
 # ms-forge-eco agent scratch output — temp files, never commit
 /task/*
 !/task/README.md
+
+# Terraform (managed by ms-infra-github)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
