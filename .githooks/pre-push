@@ -1,0 +1,30 @@
+#!/bin/sh
+# ---------------------------------------------------------------------------
+# Guard: never push to the po-template TEMPLATE repository.
+#
+# This repo was created from a shared template. Pushing to the template's own
+# remote would modify the template for everyone — almost always a mistake. This
+# hook aborts any push whose remote URL points at "po-template".
+#
+# Activated by:  git config core.hooksPath .githooks   (the /setup wizard does
+# this for you). To intentionally push to the template, use:  git push --no-verify
+# ---------------------------------------------------------------------------
+remote_url="$2"
+
+case "$remote_url" in
+  */po-template|*/po-template.git|*/po-template/*|*/po-template.git/*)
+    echo "" >&2
+    echo "✋ Push blocked — that remote looks like the po-template TEMPLATE:" >&2
+    echo "     $remote_url" >&2
+    echo "" >&2
+    echo "   This project started from the template; pushing here would change" >&2
+    echo "   the template itself. Point 'origin' at YOUR OWN repo instead:" >&2
+    echo "     git remote set-url origin <your-repo-url>" >&2
+    echo "" >&2
+    echo "   (If you truly mean to update the template, re-run with --no-verify.)" >&2
+    echo "" >&2
+    exit 1
+    ;;
+esac
+
+exit 0
