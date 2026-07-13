@@ -1,0 +1,8 @@
+# Supabase CLI project config. Set project_id to YOUR project ref, then:
+#   supabase link --project-ref <your-ref>
+#   supabase db push        # applies supabase/migrations/*
+project_id = "your-project-ref"
+
+[db]
+# Local dev DB port (supabase start). Safe to leave as default.
+port = 54322

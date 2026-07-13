@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Design-system seam.
+
+  These CSS variables ARE your design tokens (same mechanism raimonland uses).
+  This file ships a neutral slate baseline that matches shadcn/ui defaults so
+  `npx shadcn@latest add <component>` works out of the box. To apply your own
+  design system, override the values below — you should not need to touch
+  tailwind.config.ts. All colors are space-separated HSL channels.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Konsta (mobile apps) — Material color overrides.
+
+   Material 3 seeds a whole tonal palette from `konsta.colors.primary`: it
+   darkens/desaturates the primary AND tints every surface with the brand hue.
+   We instead keep the brand color as the Material primary and neutralize the
+   surfaces, so Android reads as the same brand as iOS — just in its native
+   idiom. Unlayered so it wins over Konsta's :root base. Light theme only (the
+   mobile App runs dark={false}); add matching `--k-color-md-dark-*` here if you
+   enable dark mode.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Brand accents → our slate (M3 otherwise darkens/desaturates the seed). */
+  --k-color-md-light-primary: 15 23 42;
+  --k-color-md-light-on-primary: 255 255 255;
+  --k-color-md-light-primary-container: 219 224 234;
+  --k-color-md-light-on-primary-container: 12 18 33;
+  --k-color-md-light-secondary: 15 23 42;
+  --k-color-md-light-on-secondary: 255 255 255;
+  --k-color-md-light-secondary-container: 219 224 234;
+  --k-color-md-light-on-secondary-container: 12 18 33;
+
+  /* Neutral surfaces, text & outlines (M3 tints all of these with the seed). */
+  --k-color-md-light-surface: 255 255 255;
+  --k-color-md-light-surface-1: 247 247 249;
+  --k-color-md-light-surface-2: 244 244 246;
+  --k-color-md-light-surface-3: 241 241 243;
+  --k-color-md-light-surface-4: 240 240 242;
+  --k-color-md-light-surface-5: 238 238 240;
+  --k-color-md-light-surface-variant: 238 238 241;
+  --k-color-md-light-on-surface: 28 28 30;
+  --k-color-md-light-on-surface-variant: 96 98 102;
+  --k-color-md-light-outline: 156 156 161;
+  --k-color-md-light-outline-variant: 214 214 219;
+}
