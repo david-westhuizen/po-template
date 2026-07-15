@@ -1,0 +1,57 @@
+name: Deploy to Vercel
+
+# Auto-deploys on every push to main (production) and on every PR (preview).
+#
+# Why a token instead of Vercel's built-in Git integration:
+#   On a Vercel team plan, a git push only auto-deploys if the COMMIT AUTHOR is a
+#   Vercel team member with a linked GitHub account — otherwise Vercel blocks it.
+#   Deploying here with a team-owned token (repo secret VERCEL_TOKEN) attributes
+#   every deploy to the token owner, so ANY contributor's push deploys without a
+#   paid Vercel seat and is never author-blocked. The /setup wizard (Phase 9)
+#   therefore DISCONNECTS Vercel's own Git integration and relies on this file.
+#
+# Build runs remotely on Vercel, so it works regardless of the package manager.
+#
+# Until the three repo secrets (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID)
+# exist, this workflow skips itself cleanly instead of failing red.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Vercel is configured
+        id: cfg
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Vercel isn't set up yet — skipping deploy. Run /setup (Phase 9) to connect it."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.configured == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.cfg.outputs.configured == 'true'
+        with:
+          node-version: 22
+
+      - name: Install Vercel CLI
+        if: steps.cfg.outputs.configured == 'true'
+        run: npm i -g vercel@latest
+
+      - name: Deploy
+        if: steps.cfg.outputs.configured == 'true'
+        run: vercel deploy ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }} --yes

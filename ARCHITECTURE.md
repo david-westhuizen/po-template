@@ -176,6 +176,35 @@ Two migrations, no domain tables:
 
 Add your own tables in new migrations, each with an `org_id` scoped by RLS.
 
+## Deployment (Vercel)
+
+The app deploys to **Vercel** via a **GitHub Actions** workflow
+(`.github/workflows/deploy.yml`), *not* Vercel's built-in Git integration. The
+`/setup` wizard (Phase 9) wires this up.
+
+- **Trigger:** push to `main` → production; open a PR → preview deployment.
+- **Auth:** the workflow runs `vercel deploy [--prod] --token=$VERCEL_TOKEN`.
+  Three repo secrets drive it: `VERCEL_TOKEN` (team-scoped), `VERCEL_ORG_ID`,
+  `VERCEL_PROJECT_ID`. Until they exist the workflow skips itself (no red X).
+- **Why not Vercel's own Git integration?** On a Vercel *team* plan, an
+  auto-deploy is **blocked** unless the git **commit author** is a Vercel team
+  member with a linked GitHub account — so a teammate's (or a Lovable/agent's)
+  commit silently won't deploy, and adding each person costs a paid seat. A
+  token deploy is attributed to the token owner, so **any** contributor's push
+  deploys with **no extra seats** and is never author-blocked. (This bites the
+  local CLI too: a bare `vercel --prod` on a commit authored by a non-member is
+  blocked; deploy from a git-metadata-free copy —
+  `git archive HEAD | tar -x -C /tmp/out && cd /tmp/out && vercel --prod` — to
+  force a token-attributed deploy.) Setup therefore **disconnects** Vercel's Git
+  integration (Vercel → project → Settings → Git → Disconnect) so it doesn't
+  also create redundant blocked deploys. **Don't reconnect it.**
+- **Build:** runs **remotely on Vercel**, so it doesn't depend on the runner's
+  package manager. Vercel builds with the **Environment Variables** set in the
+  Vercel project — the app's `VITE_SUPABASE_*` values must be added there (the
+  local `.env` is gitignored and never reaches Vercel).
+- **SPA routing:** a `vercel.json` with a catch-all rewrite to `/index.html`
+  keeps client-side routes working on refresh.
+
 ## Adding a feature
 
 1. **Schema** — add table(s) via a new `supabase/migrations/*.sql`, then

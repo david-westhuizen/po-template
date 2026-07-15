@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Interactive first-time setup wizard for this po-template repo. Guides a non-technical user (a product owner used to Lovable, not a developer) through naming the project, defining their apps/roles, connecting their own Supabase project, creating the database, setting brand colors, and running the app for the first time. Invoke when the user says "set up", "get started", "/setup", "help me configure this", "connect Supabase", or opens the repo for the first time and doesn't know what to do.
+description: Interactive first-time setup wizard for this po-template repo. Guides a non-technical user (a product owner used to Lovable, not a developer) through naming the project, defining their apps/roles, connecting their own Supabase project, creating the database, setting brand colors, running the app for the first time, and putting it online (deploying to Vercel with auto-deploy on every push). Invoke when the user says "set up", "get started", "/setup", "help me configure this", "connect Supabase", "deploy", "publish", "put it online", "connect Vercel", or opens the repo for the first time and doesn't know what to do.
 ---
 
 # Setup Wizard
@@ -300,7 +300,97 @@ Walk them through it live:
 Explain: other people join an organization by invitation with a role (member /
 partner) — that's a feature they can ask you to build next.
 
-## Phase 9 — What's next
+## Phase 9 — Put it online (deploy to Vercel)
+
+So far the app runs only on their computer. **Vercel** gives it a real web
+address and — once set up — **re-publishes automatically every time anyone saves
+changes**. Say it plainly:
+
+> "Right now your app only runs on your computer. Vercel puts it on the internet
+> with a real link, and once we connect it, the live site updates **by itself**
+> every time you (or a teammate) save changes. It's free to start."
+
+Good news: this project **already ships** the deploy setup — a
+`.github/workflows/deploy.yml` and a `vercel.json`. You just connect their
+accounts. Do these steps in order, one at a time.
+
+### 9.0 — Make sure the app is on their own GitHub repo
+
+Auto-deploy watches their GitHub repo, so the code must live there first.
+- Run `git remote -v`. If there's no `origin` pointing at **their own** GitHub
+  (Phase 1.5 may have removed the template link), help them publish it:
+  - Easiest (if `gh` is installed): `gh repo create <name> --private --source=. --remote=origin --push`.
+  - Or: they create an empty repo on github.com, then you run
+    `git remote add origin <their-repo-url> && git push -u origin main`.
+- Confirm the push to their repo succeeds.
+
+### 9.1 — Create a Vercel project from their repo (dashboard — human only)
+
+Read their `.env` first and have the three Supabase values ready to show them.
+Then give this click-path and wait:
+1. Go to https://vercel.com → **Sign up** → **Continue with GitHub** (easiest).
+2. **Add New… → Project** → find their repo → **Import**.
+3. It auto-detects **Vite**. Before deploying, open **Environment Variables**
+   and add the same three from their `.env` (Phase 3) — paste the values you just
+   read out:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`
+   - `VITE_SUPABASE_PROJECT_ID`
+
+   > "The live site needs these to reach your database — without them it'll load
+   > but can't log anyone in."
+4. Click **Deploy** and let the first build finish.
+
+### 9.2 — Get a deploy token (dashboard — human only)
+
+1. Vercel → your avatar (top-right) → **Settings → Tokens → Create Token**.
+   Name it "GitHub Actions", scope it to their account/team.
+2. Copy it and paste it here. Tell them plainly: *this lets the auto-deploy
+   publish on your behalf. I'll store it as an encrypted **GitHub secret** — it
+   never appears in your code, and you can delete the token in Vercel anytime.*
+
+### 9.3 — Wire up auto-deploy (you do this for them)
+
+Once they paste the token:
+1. Link the project to fetch its IDs:
+   `npx vercel link --yes --token <token>` — pick the project they just imported.
+   This writes `.vercel/project.json` containing `orgId` and `projectId`.
+2. Read those two IDs from `.vercel/project.json`.
+3. Set the three GitHub secrets on their repo (add `-R <owner>/<repo>` if there
+   are multiple remotes):
+   ```
+   gh secret set VERCEL_TOKEN      --body "<token>"
+   gh secret set VERCEL_ORG_ID     --body "<orgId>"
+   gh secret set VERCEL_PROJECT_ID --body "<projectId>"
+   ```
+
+### 9.4 — Turn off Vercel's own auto-deploy (important)
+
+Explain the *why* in one sentence:
+
+> "Vercel has its own built-in publishing, but on a team it only lets **paid**
+> members publish that way — a teammate's save would get blocked. Our setup
+> avoids that (anyone can publish, no extra accounts), so we switch Vercel's
+> built-in one off."
+
+- Human path: Vercel → the project → **Settings → Git → Disconnect**.
+- Or do it for them with the token:
+  `curl -X DELETE "https://api.vercel.com/v9/projects/<projectId>/link?teamId=<orgId>" -H "Authorization: Bearer <token>"`
+  (expect HTTP 200). **Don't reconnect it later** — that brings the blocking back.
+
+### 9.5 — Test it
+
+Trigger a deploy and watch it go green:
+```
+git commit --allow-empty -m "test deploy" && git push origin main
+```
+Watch the repo's **Actions** tab (or `gh run watch`). Within a minute the live
+URL (Vercel → the project → **Domains**) shows the update.
+
+Confirm: "Your app is live, and it re-publishes automatically every time anyone
+saves changes — no extra Vercel accounts needed for your team."
+
+## Phase 10 — What's next
 
 Tell them how to keep going, in their words:
 > "From here, just tell me what you want to build — e.g. 'add a bookings page to
